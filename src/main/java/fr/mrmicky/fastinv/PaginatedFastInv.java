@@ -18,7 +18,6 @@ import java.util.stream.IntStream;
 /**
  * Extension of {@link FastInv} to easily create paginated inventories.
  */
-@SuppressWarnings("deprecation")
 public class PaginatedFastInv extends FastInv {
 
     private final List<ItemStack> contentItems = new ArrayList<>();
@@ -83,107 +82,36 @@ public class PaginatedFastInv extends FastInv {
     }
 
     /**
-     * Add an item to the paginated content with no click handler, the item will be added to the next available slot.
-     *
-     * @param item the item to add
+     * {@inheritDoc}
      */
-    public void addContent(ItemStack item) {
-        addContent(item, null);
-    }
-
-    /**
-     * Add an item to the paginated content with a click handler, the item will be added to the next available slot.
-     *
-     * @param item    the item to add
-     * @param handler the click handler associated to this item
-     */
+    @Override
     public void addContent(ItemStack item, Consumer<InventoryClickEvent> handler) {
         this.contentItems.add(item);
         this.contentHandlers.add(handler);
     }
 
     /**
-     * Add a list of items to the paginated content with no click handler, the items will be added to the next available slots.
-     *
-     * @param content the list of items to add
+     * {@inheritDoc}
      */
-    public void addContent(Collection<ItemStack> content) {
-        addContent(content, Collections.nCopies(content.size(), null));
-    }
-
-    /**
-     * Add a list of items to the paginated content with click handlers, the items will be added to the next available slots.
-     * The list of click handlers must have the same size as the list of items.
-     *
-     * @param content  the list of items to add
-     * @param handlers the list of click handlers associated to the items
-     */
+    @Override
     public void addContent(Collection<ItemStack> content, Collection<Consumer<InventoryClickEvent>> handlers) {
-        Objects.requireNonNull(content, "content");
-        Objects.requireNonNull(handlers, "handlers");
-
-        if (content.size() != handlers.size()) {
-            throw new IllegalArgumentException("The content and handlers lists must have the same size");
-        }
-
         this.contentItems.addAll(content);
         this.contentHandlers.addAll(handlers);
     }
 
     /**
-     * Set the item at the specified index of the paginated content, with no click handler.
-     *
-     * @param index the slot index
-     * @param item  the item to set
+     * {@inheritDoc}
      */
-    public void setContent(int index, ItemStack item) {
-        setContent(index, item, null);
-    }
-
-    /**
-     * Set the item at the specified index of the paginated content, with a click handler.
-     *
-     * @param index   the slot index
-     * @param item    the item to set
-     * @param handler the click handler associated to this item
-     */
+    @Override
     public void setContent(int index, ItemStack item, Consumer<InventoryClickEvent> handler) {
         this.contentItems.set(index, item);
         this.contentHandlers.set(index, handler);
     }
 
     /**
-     * Set the list of items as the paginated content, with no click handler. The previous content will be cleared.
-     *
-     * @param content the list of items to set
+     * {@inheritDoc}
      */
-    public void setContent(List<ItemStack> content) {
-        clearContent();
-        addContent(content);
-    }
-
-    /**
-     * Set the list of items as the paginated content, with click handlers. The previous content will be cleared.
-     * The list of click handlers must have the same size as the list of items.
-     *
-     * @param content  the list of items to set
-     * @param handlers the list of click handlers associated to the items
-     */
-    public void setContent(Collection<ItemStack> content, Collection<Consumer<InventoryClickEvent>> handlers) {
-        Objects.requireNonNull(content, "content");
-        Objects.requireNonNull(handlers, "handlers");
-
-        if (content.size() != handlers.size()) {
-            throw new IllegalArgumentException("The content and handlers lists must have the same size");
-        }
-
-        clearContent();
-        addContent(content, handlers);
-    }
-
-    /**
-     * Clear the paginated content and the associated click handlers.
-     */
+    @Override
     public void clearContent() {
         this.contentItems.clear();
         this.contentHandlers.clear();

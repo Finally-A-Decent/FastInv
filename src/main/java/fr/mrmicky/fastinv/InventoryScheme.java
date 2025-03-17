@@ -1,6 +1,6 @@
 package fr.mrmicky.fastinv;
 
-//import fr.mrmicky.fastinv.components.GuiComponent;
+import fr.mrmicky.fastinv.components.GuiComponent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -16,7 +16,7 @@ public class InventoryScheme {
     private final List<String> masks = new ArrayList<>();
     private final Map<Character, ItemStack> items = new HashMap<>();
     private final Map<Character, Consumer<InventoryClickEvent>> handlers = new HashMap<>();
-    //private final Map<Character, Class<? extends GuiComponent>> componentChars = new HashMap<>();
+    private final Map<Character, Class<? extends GuiComponent>> componentChars = new HashMap<>();
     private char paginationChar;
     private char nextPageChar;
     private char previousPageChar;
@@ -119,10 +119,10 @@ public class InventoryScheme {
      * @param component the component to bind to
      * @return this scheme instance
      */
-//    public InventoryScheme bindComponent(char character, Class<? extends GuiComponent> component) {
-//        this.componentChars.put(character, component);
-//        return this;
-//    }
+    public InventoryScheme bindComponent(char character, Class<? extends GuiComponent> component) {
+        this.componentChars.put(character, component);
+        return this;
+    }
 
     /**
      * Unbind any item from this character.
@@ -143,7 +143,7 @@ public class InventoryScheme {
      */
     public void apply(FastInv inv) {
         List<Integer> paginationSlots = new ArrayList<>();
-        //Map<Class<? extends GuiComponent>, List<Integer>> componentSlots = new HashMap<>();
+        Map<Class<? extends GuiComponent>, List<Integer>> componentSlots = new HashMap<>();
 
         for (int line = 0; line < this.masks.size(); line++) {
             String mask = this.masks.get(line);
@@ -166,17 +166,17 @@ public class InventoryScheme {
                     continue;
                 }
 
-//                if (this.componentChars.containsKey(c)) {
-//                    Class<? extends GuiComponent> componentClass = this.componentChars.get(c);
-//                    int add = 9 * line + slot;
-//
-//                    componentSlots.compute(componentClass, (k, v) -> {
-//                        if (v == null) v = new ArrayList<>();
-//                        v.add(add);
-//                        return v;
-//                    });
-//                    continue;
-//                }
+                if (this.componentChars.containsKey(c)) {
+                    Class<? extends GuiComponent> componentClass = this.componentChars.get(c);
+                    int add = 9 * line + slot;
+
+                    componentSlots.compute(componentClass, (k, v) -> {
+                        if (v == null) v = new ArrayList<>();
+                        v.add(add);
+                        return v;
+                    });
+                    continue;
+                }
 
                 ItemStack item = this.items.get(c);
                 Consumer<InventoryClickEvent> handler = this.handlers.get(c);
@@ -191,9 +191,9 @@ public class InventoryScheme {
             ((PaginatedFastInv) inv).setContentSlots(paginationSlots);
         }
 
-//        for (Map.Entry<Class<? extends GuiComponent>, List<Integer>> entry : componentSlots.entrySet()) {
-//            inv.getComponent(entry.getKey())
-//                    .ifPresent(component -> component.setSlots(entry.getValue()));
-//        }
+        for (Map.Entry<Class<? extends GuiComponent>, List<Integer>> entry : componentSlots.entrySet()) {
+            inv.getComponent(entry.getKey())
+                    .ifPresent(component -> component.setSlots(entry.getValue()));
+        }
     }
 }

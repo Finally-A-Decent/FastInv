@@ -26,6 +26,7 @@ package fr.mrmicky.fastinv;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -44,6 +45,9 @@ public class ItemBuilder {
     private final ItemStack item;
     private final List<String> lore;
     private final ItemMeta itemMeta;
+
+    private Consumer<InventoryClickEvent> handler;
+    private int slot = -1;
 
     public static ItemBuilder copyOf(ItemStack item) {
         return new ItemBuilder(item.clone());
@@ -177,6 +181,33 @@ public class ItemBuilder {
 
     public ItemBuilder armorColor(Color color) {
         return meta(LeatherArmorMeta.class, meta -> meta.setColor(color));
+    }
+
+    public ItemBuilder slot(int slot) {
+        this.slot = slot;
+        return this;
+    }
+
+    public ItemBuilder handler(Consumer<InventoryClickEvent> handler) {
+        this.handler = handler;
+        return this;
+    }
+
+    public void add(ButtonContainer container) {
+        if (slot < 0) {
+            if (container instanceof FastInv) {
+                container.addItem(build(), handler);
+                return;
+            }
+            container.addContent(build(), handler);
+            return;
+        }
+
+        container.setItem(slot, build(), handler);
+    }
+
+    public void bind(InventoryScheme scheme, char character) {
+        scheme.bindItem(character, build(), handler);
     }
 
     public ItemStack build() {

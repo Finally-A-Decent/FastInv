@@ -23,14 +23,17 @@
  */
 package fr.mrmicky.fastinv;
 
+import fr.mrmicky.fastinv.components.GuiComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -43,9 +46,10 @@ import java.util.stream.IntStream;
  * @author MrMicky
  * @version 3.1.1
  */
-public class FastInv implements InventoryHolder {
+public class FastInv implements InventoryHolder, ButtonContainer {
 
     private final Map<Integer, Consumer<InventoryClickEvent>> itemHandlers = new HashMap<>();
+    private final Map<Class<? extends GuiComponent>, GuiComponent> components = new HashMap<>();
     private final List<Consumer<InventoryOpenEvent>> openHandlers = new ArrayList<>();
     private final List<Consumer<InventoryCloseEvent>> closeHandlers = new ArrayList<>();
     private final List<Consumer<InventoryClickEvent>> clickHandlers = new ArrayList<>();
@@ -141,20 +145,9 @@ public class FastInv implements InventoryHolder {
     }
 
     /**
-     * Add an {@link ItemStack} to the inventory on the first empty slot, with no click handler.
-     *
-     * @param item the item to add
+     * {@inheritDoc}
      */
-    public void addItem(ItemStack item) {
-        addItem(item, null);
-    }
-
-    /**
-     * Add an {@link ItemStack} to the inventory on the first empty slot with a click handler.
-     *
-     * @param item    the item to add.
-     * @param handler the click handler associated to this item
-     */
+    @Override
     public void addItem(ItemStack item, Consumer<InventoryClickEvent> handler) {
         int slot = this.inventory.firstEmpty();
         if (slot >= 0) {
@@ -163,22 +156,9 @@ public class FastInv implements InventoryHolder {
     }
 
     /**
-     * Add an {@link ItemStack} to the inventory on a specific slot, with no click handler.
-     *
-     * @param slot The slot where to add the item.
-     * @param item The item to add.
+     * {@inheritDoc}
      */
-    public void setItem(int slot, ItemStack item) {
-        setItem(slot, item, null);
-    }
-
-    /**
-     * Add an {@link ItemStack} to the inventory on specific slot with a click handler.
-     *
-     * @param slot    the slot where to add the item
-     * @param item    the item to add.
-     * @param handler the click handler associated to this item
-     */
+    @Override
     public void setItem(int slot, ItemStack item, Consumer<InventoryClickEvent> handler) {
         this.inventory.setItem(slot, item);
 
@@ -190,103 +170,63 @@ public class FastInv implements InventoryHolder {
     }
 
     /**
-     * Add an {@link ItemStack} to the inventory on a range of slots, with no click handler.
-     *
-     * @param slotFrom starting slot (inclusive) to put the item in
-     * @param slotTo   ending slot (exclusive) to put the item in
-     * @param item     The item to add.
+     * {@inheritDoc}
      */
-    public void setItems(int slotFrom, int slotTo, ItemStack item) {
-        setItems(slotFrom, slotTo, item, null);
-    }
-
-    /**
-     * Add an {@link ItemStack} to the inventory on a range of slots with a click handler.
-     *
-     * @param slotFrom starting slot (inclusive) to put the item in
-     * @param slotTo   ending slot (exclusive) to put the item in
-     * @param item     the item to add
-     * @param handler  the click handler associated to these items
-     */
-    public void setItems(int slotFrom, int slotTo, ItemStack item, Consumer<InventoryClickEvent> handler) {
-        for (int i = slotFrom; i < slotTo; i++) {
-            setItem(i, item, handler);
-        }
-    }
-
-    /**
-     * Add an {@link ItemStack} to the inventory on multiple slots, with no click handler.
-     *
-     * @param slots the slots where to add the item
-     * @param item  the item to add
-     */
-    public void setItems(int[] slots, ItemStack item) {
-        setItems(slots, item, null);
-    }
-
-    /**
-     * Add an {@link ItemStack} to the inventory on multiples slots with a click handler.
-     *
-     * @param slots   the slots where to add the item
-     * @param item    the item to add
-     * @param handler the click handler associated to this item
-     */
-    public void setItems(int[] slots, ItemStack item, Consumer<InventoryClickEvent> handler) {
-        for (int slot : slots) {
-            setItem(slot, item, handler);
-        }
-    }
-
-    /**
-     * Add an {@link ItemStack} to the inventory on multiple slots, with no click handler.
-     *
-     * @param slots the list of slots where to add the item
-     * @param item  the item to add
-     */
-    public void setItems(Iterable<Integer> slots, ItemStack item) {
-        setItems(slots, item, null);
-    }
-
-    /**
-     * Add an {@link ItemStack} to the inventory on multiple slots with a click handler.
-     *
-     * @param slots   the list of slots where to add the item
-     * @param item    the item to add
-     * @param handler the click handler associated to this item
-     */
-    public void setItems(Iterable<Integer> slots, ItemStack item, Consumer<InventoryClickEvent> handler) {
-        for (Integer slot : slots) {
-            setItem(slot, item, handler);
-        }
-    }
-
-    /**
-     * Remove an {@link ItemStack} from the inventory.
-     *
-     * @param slot the slot from where to remove the item
-     */
+    @Override
     public void removeItem(int slot) {
         this.inventory.clear(slot);
         this.itemHandlers.remove(slot);
     }
 
     /**
-     * Remove multiples {@link ItemStack} from the inventory.
-     *
-     * @param slots the slots from where to remove the items
+     * {@inheritDoc}
      */
-    public void removeItems(int... slots) {
-        for (int slot : slots) {
-            removeItem(slot);
-        }
-    }
-
-    /**
-     * Clear all items from the inventory and remove the click handlers.
-     */
+    @Override
     public void clearItems() {
         this.inventory.clear();
         this.itemHandlers.clear();
+    }
+
+    @Override
+    public void addContent(ItemStack item, Consumer<InventoryClickEvent> handler) {
+        throw new IllegalStateException("FastInv does not support addContent");
+    }
+
+    @Override
+    public void addContent(Collection<ItemStack> content, Collection<Consumer<InventoryClickEvent>> handlers) {
+        throw new IllegalStateException("FastInv does not support addContent");
+    }
+
+    @Override
+    public void setContent(int index, ItemStack item, Consumer<InventoryClickEvent> handler) {
+        throw new IllegalStateException("FastInv does not support setContent");
+    }
+
+    @Override
+    public void clearContent() {
+        throw new IllegalStateException("FastInv does not support clearContent");
+    }
+
+    /**
+     * Get a component attached to this gui by the class.
+     *
+     * @param componentClass the class of the component.
+     * @return the component instance, or empty.
+     */
+    public <T extends GuiComponent> Optional<T> getComponent(Class<T> componentClass) {
+        GuiComponent component = this.components.get(componentClass);
+        if (component == null) return Optional.empty();
+        return Optional.of(componentClass.cast(component));
+    }
+
+    /**
+     * Add a component to this gui.
+     *
+     * @param component the component to add.
+     */
+    public void addComponent(GuiComponent component) {
+        components.put(component.getClass(), component);
+        component.apply(this);
     }
 
     /**
@@ -373,7 +313,7 @@ public class FastInv implements InventoryHolder {
      * @return the Bukkit inventory
      */
     @Override
-    public Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return this.inventory;
     }
 
