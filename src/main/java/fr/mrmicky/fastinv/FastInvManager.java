@@ -26,12 +26,14 @@ package fr.mrmicky.fastinv;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Objects;
@@ -75,10 +77,11 @@ public final class FastInvManager {
             this.plugin = plugin;
         }
 
-        @EventHandler
+        @EventHandler(priority = EventPriority.HIGHEST)
         public void onInventoryClick(InventoryClickEvent e) {
-            if (e.getInventory().getHolder() instanceof FastInv && e.getClickedInventory() != null) {
-                FastInv inv = (FastInv) e.getInventory().getHolder();
+            InventoryHolder holder = e.getInventory().getHolder(false);
+            if (holder instanceof FastInv) {
+                FastInv inv = (FastInv) holder;
 
                 boolean wasCancelled = e.isCancelled();
                 e.setCancelled(true);
@@ -92,10 +95,11 @@ public final class FastInvManager {
             }
         }
 
-        @EventHandler
+        @EventHandler(priority = EventPriority.HIGHEST)
         public void onInventoryDrag(InventoryDragEvent e) {
-            if (e.getInventory().getHolder() instanceof FastInv) {
-                FastInv inv = (FastInv) e.getInventory().getHolder();
+            InventoryHolder holder = e.getInventory().getHolder(false);
+            if (holder instanceof FastInv) {
+                FastInv inv = (FastInv) holder;
 
                 boolean wasCancelled = e.isCancelled();
                 e.setCancelled(true);
@@ -109,19 +113,21 @@ public final class FastInvManager {
             }
         }
 
-        @EventHandler
+        @EventHandler(priority = EventPriority.HIGHEST)
         public void onInventoryOpen(InventoryOpenEvent e) {
-            if (e.getInventory().getHolder() instanceof FastInv) {
-                FastInv inv = (FastInv) e.getInventory().getHolder();
+            InventoryHolder holder = e.getInventory().getHolder(false);
+            if (holder instanceof FastInv) {
+                FastInv inv = (FastInv) holder;
 
                 inv.handleOpen(e);
             }
         }
 
-        @EventHandler
+        @EventHandler(priority = EventPriority.HIGHEST)
         public void onInventoryClose(InventoryCloseEvent e) {
-            if (e.getInventory().getHolder() instanceof FastInv) {
-                FastInv inv = (FastInv) e.getInventory().getHolder();
+            InventoryHolder holder = e.getInventory().getHolder(false);
+            if (holder instanceof FastInv) {
+                FastInv inv = (FastInv) holder;
 
                 if (inv.handleClose(e)) {
                     Bukkit.getScheduler().runTask(this.plugin, () -> inv.open((Player) e.getPlayer()));
