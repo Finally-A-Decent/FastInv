@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 /**
  * Extension of {@link FastInv} to easily create paginated inventories.
  */
+@SuppressWarnings("deprecation")
 public class PaginatedFastInv extends FastInv {
 
     private final List<ItemStack> contentItems = new ArrayList<>();
@@ -266,6 +267,15 @@ public class PaginatedFastInv extends FastInv {
     }
 
     /**
+     * Set the item to open the previous page.
+     *
+     * @param item a function to get the item to set, with the page the item opens as parameter
+     */
+    public void previousPageItem(IntFunction<ItemStack> item) {
+        this.previousPageItem = item;
+    }
+
+    /**
      * Set the item at the specified inventory slot to open the previous page.
      *
      * @param slot the inventory to set the item
@@ -273,6 +283,28 @@ public class PaginatedFastInv extends FastInv {
      */
     public void previousPageItem(int slot, ItemStack item) {
         previousPageItem(slot, page -> item);
+    }
+
+    /**
+     * Set the item to open the previous page.
+     *
+     * @param item the item to set
+     */
+    public void previousPageItem(ItemStack item) {
+        previousPageItem(page -> item);
+    }
+
+    /**
+     * Set the slot at which the previous page item will be placed.
+     *
+     * @param slot the slot to set the item
+     */
+    public void previousPageSlot(int slot) {
+        if (slot < 0 || slot >= getInventory().getSize()) {
+            throw new IllegalArgumentException("Invalid slot: " + slot);
+        }
+
+        this.previousPageSlot = slot;
     }
 
     /**
@@ -291,6 +323,15 @@ public class PaginatedFastInv extends FastInv {
     }
 
     /**
+     * Set the item to open the next page.
+     *
+     * @param item a function to get the item to set, with the page the item opens as parameter
+     */
+    public void nextPageItem(IntFunction<ItemStack> item) {
+        this.nextPageItem = item;
+    }
+
+    /**
      * Set the item at the specified inventory slot to open the next page.
      *
      * @param slot the inventory to set the item
@@ -298,6 +339,28 @@ public class PaginatedFastInv extends FastInv {
      */
     public void nextPageItem(int slot, ItemStack item) {
         nextPageItem(slot, page -> item);
+    }
+
+    /**
+     * Set the item to open the next page.
+     *
+     * @param item the item to set
+     */
+    public void nextPageItem(ItemStack item) {
+        nextPageItem(page -> item);
+    }
+
+    /**
+     * Set the slot at which the next page item will be placed.
+     *
+     * @param slot the slot to set the item
+     */
+    public void nextPageSlot(int slot) {
+        if (slot < 0 || slot >= getInventory().getSize()) {
+            throw new IllegalArgumentException("Invalid slot: " + slot);
+        }
+
+        this.previousPageSlot = slot;
     }
 
     /**
