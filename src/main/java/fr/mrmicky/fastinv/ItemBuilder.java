@@ -31,10 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -45,6 +42,8 @@ import java.util.function.Consumer;
 public class ItemBuilder {
 
     private final ItemStack item;
+    private final List<String> lore;
+    private final ItemMeta itemMeta;
 
     public static ItemBuilder copyOf(ItemStack item) {
         return new ItemBuilder(item.clone());
@@ -56,6 +55,13 @@ public class ItemBuilder {
 
     public ItemBuilder(ItemStack item) {
         this.item = Objects.requireNonNull(item, "item");
+        this.itemMeta = item.getItemMeta();
+
+        if (itemMeta == null || itemMeta.getLore() == null) {
+            this.lore = new ArrayList<>();
+        } else {
+            this.lore = itemMeta.getLore();
+        }
     }
 
     public ItemBuilder edit(Consumer<ItemStack> function) {
@@ -65,11 +71,8 @@ public class ItemBuilder {
 
     public ItemBuilder meta(Consumer<ItemMeta> metaConsumer) {
         return edit(item -> {
-            ItemMeta meta = item.getItemMeta();
-
-            if (meta != null) {
-                metaConsumer.accept(meta);
-                item.setItemMeta(meta);
+            if (itemMeta != null) {
+                metaConsumer.accept(itemMeta);
             }
         });
     }
@@ -128,21 +131,14 @@ public class ItemBuilder {
     }
 
     public ItemBuilder lore(List<String> lore) {
-        return meta(meta -> meta.setLore(lore));
+        this.lore.clear();
+        this.lore.addAll(lore);
+        return this;
     }
 
     public ItemBuilder addLore(String line) {
-        return meta(meta -> {
-            List<String> lore = meta.getLore();
-
-            if (lore == null) {
-                meta.setLore(Collections.singletonList(line));
-                return;
-            }
-
-            lore.add(line);
-            meta.setLore(lore);
-        });
+        this.lore.add(line);
+        return this;
     }
 
     public ItemBuilder addLore(String... lines) {
@@ -184,6 +180,8 @@ public class ItemBuilder {
     }
 
     public ItemStack build() {
+        meta(meta -> meta.setLore(lore));
+        this.item.setItemMeta(this.itemMeta);
         return this.item;
     }
 }
